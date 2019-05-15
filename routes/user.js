@@ -83,6 +83,35 @@ module.exports = {
     }
   },
 
+  async change (ctx, next) {
+    if (ctx.method === 'GET') {
+      await ctx.render('change', {
+        title: '修改邮箱'
+      })
+      return
+    }
+    let { newemail: newEmail } = ctx.request.body
+    let id = ctx.session.user._id
+    let user = await UserModel.findById(id)
+    let email = user.email
+    if (email !== newEmail) {
+      newEmail = newEmail.replace(/^\s+|\s+$/g, '').toLowerCase()
+      let reg = new RegExp(/^[a-z0-9](\w|\.|-)*@([a-z0-9]+-?[a-z0-9]+\.){1,3}[a-z]{2,4}$/i)
+      if (newEmail.match(reg)) {
+        await UserModel.findByIdAndUpdate(id, { email: newEmail })
+        ctx.session.user.email = newEmail
+        ctx.flash = { success: '修改成功' }
+        ctx.redirect('back')
+      } else {
+        ctx.flash = { warning: '输入邮箱格式不正确' }
+        ctx.redirect('back')
+      }
+    } else if (email === newEmail) {
+      ctx.flash = { warning: '输入邮箱与原邮箱一致' }
+      ctx.redirect('back')
+    }
+  },
+
   signout (ctx, next) {
     ctx.session.user = null
     ctx.flash = { warning: '退出登录' }

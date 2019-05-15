@@ -26,6 +26,8 @@ module.exports = (app) => {
   router.get('/user/:username', require('./user').index)
   router.get('/signup', require('./user').signup)
   router.post('/signup', require('./user').signup)
+  router.get('/change', require('./user').change)
+  router.post('/change', require('./user').change)
   router.get('/signin', require('./user').signin)
   router.post('/signin', require('./user').signin)
   router.get('/signout', isLoginUser, require('./user').signout)
